@@ -195,8 +195,11 @@ def main():
 
     # Add optimizer and loss to graph
     # TODO 5: find the optimizer"Adam" and criterion in mxnet
+    mxnet_optimizer = mx.optimizer.Adam(learning_rate=args.learing_rate)
     optimizer = torch.optim.Adam(model.parameters(), lr=args.learning_rate)
+
     criterion = nn.BCEWithLogitsLoss()
+
     # TODO 6: to find whether the optimizer and criterion in mxnet possess cuda()
     if use_cuda:
         # Move model and loss to GPU
@@ -216,6 +219,7 @@ def main():
         losses = utils.AverageMeter()
 
         begin = time.time()
+        # tqdm shows the percentage of the process
         loader = tqdm.tqdm(train_dataloader)
         for batch_index, (user, item, label) in enumerate(loader):
             # TODO 7: search the autograd in mxnet

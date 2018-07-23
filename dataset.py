@@ -1,13 +1,11 @@
 import numpy as np
 import scipy
 import scipy.sparse
-import torch
-import torch.utils.data
+# import torch
+# import torch.utils.data
 import mxnet
 import os
 
-from convert import (TEST_NEG_FILENAME, TEST_RATINGS_FILENAME,
-                     TRAIN_RATINGS_FILENAME)
 
 class CFTrainDataset(mxnet.gluon.data.Dataset):
     # torch.utils.data.dataset.Dataset
