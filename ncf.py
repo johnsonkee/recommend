@@ -197,7 +197,7 @@ def main():
     # TODO 5: find the optimizer"Adam" and criterion in mxnet
     mxnet_optimizer = mx.optimizer.Adam(learning_rate=args.learing_rate)
     optimizer = torch.optim.Adam(model.parameters(), lr=args.learning_rate)
-    
+
     criterion = nn.BCEWithLogitsLoss()
 
     # TODO 6: to find whether the optimizer and criterion in mxnet possess cuda()
