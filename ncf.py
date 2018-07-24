@@ -9,9 +9,9 @@ from argparse import ArgumentParser
 
 import tqdm
 import numpy as np
-import torch
+# import torch
 # import torch.nn as nn
-from torch import multiprocessing as mp
+# from torch import multiprocessing as mp
 
 import mxnet as mx
 from mxnet import nd
