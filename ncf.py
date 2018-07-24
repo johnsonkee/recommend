@@ -160,7 +160,7 @@ def main():
     utils.save_config(config, run_dir)   #defined in utils.py
 
     # Check that GPUs are actually available
-    # TODO 2: find cuda's availability in mxnet
+    # TODO 2: find cuda's availability in mxnet  solved
     use_cuda = not args.no_cuda and torch.cuda.is_available()
 
     t1 = time.time()
@@ -173,7 +173,7 @@ def main():
 
     train_dataloader = mx.gluon.data.DataLoader(
             dataset=train_dataset, batch_size=args.batch_size, shuffle=True,  # shuffle means random the samples
-            num_workers=8)  # TODO 4: find out the meaning of pin_memory
+            num_workers=8)  # TODO 4: find out the meaning of pin_memory solved
     test_ratings = load_test_ratings(os.path.join(args.data, TEST_RATINGS_FILENAME))  # noqa: E501
     test_negs = load_test_negs(os.path.join(args.data, TEST_NEG_FILENAME))
     nb_users, nb_items = train_dataset.nb_users, train_dataset.nb_items       ##nb_users nb_items是dataset里的名字
@@ -181,7 +181,10 @@ def main():
           % (time.time()-t1, nb_users, nb_items, train_dataset.mat.nnz,
              len(test_ratings)))
 
-    ctx = use_cuda
+    if(use_cuda):
+        ctx = mx.gpu(3)  # default to use NO.3 gpu
+    else:
+        ctx = mx.cpu(0)
     # Create model
     model = NeuMF(nb_users, nb_items,
                   mf_dim=args.factors, mf_reg=0.,
@@ -189,8 +192,10 @@ def main():
                   mlp_layer_regs=[0. for i in args.layers],
                   ctx=ctx)
     print(model)
+    # todo 9: to change the function in utils
     print("{} parameters".format(utils.count_parameters(model)))
 
+    # model.collect_params()
     # Save model text description
     with open(os.path.join(run_dir, 'model.txt'), 'w') as file:
         file.write(str(model))
