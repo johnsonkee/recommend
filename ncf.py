@@ -15,6 +15,7 @@ import torch
 
 import mxnet as mx
 from mxnet import nd
+from mxnet import autograd
 from mxnet.gluon import nn
 import multiprocessing as mp
 
@@ -201,21 +202,6 @@ def main():
     with open(os.path.join(run_dir, 'model.txt'), 'w') as file:
         file.write(str(model))
 
-############### hyperparameters
-
-    # Add optimizer and loss to graph
-    # TODO 5: find the optimizer"Adam" and criterion in mxnet
-    lr = args.learning_rate
-
-    trainer = mx.gluon.Trainer(model.collect_params(),'adam',{'learning_rate': lr})
-    mxnet_criterion = mx.gluon.loss.SigmoidBinaryCrossEntropyLoss()   # equivalent to lossfunction
-
-    # TODO 6: to find whether the optimizer and criterion in mxnet possess cuda()
-    # if use_cuda:
-    #    # Move model and loss to GPU
-    #    model = model.cuda()
-    #    criterion = criterion.cuda()
-
     # Create files for tracking training
     valid_results_file = os.path.join(run_dir, 'valid_results.csv')
 
@@ -225,12 +211,22 @@ def main():
     print('Initial HR@{K} = {hit_rate:.4f}, NDCG@{K} = {ndcg:.4f}'
           .format(K=args.topk, hit_rate=np.mean(hits), ndcg=np.mean(ndcgs)))
 
+############### hyperparameters
+
+    # Add optimizer and loss to graph
+    # TODO 5: find the optimizer"Adam" and criterion in mxnet
+    lr = args.learning_rate
+    bs = args.batch_size
+
+    trainer = mx.gluon.Trainer(model.collect_params(),'adam',{'learning_rate': lr})
+    mxnet_criterion = mx.gluon.loss.SigmoidBinaryCrossEntropyLoss()   # equivalent to lossfunction
+
     # use the hybridize method to accelerate the process
     model.hybridize()
 
     # training
     for epoch in range(args.epochs):
-        model.train()
+
         losses = utils.AverageMeter()
 
         begin = time.time()
@@ -238,18 +234,13 @@ def main():
         loader = tqdm.tqdm(train_dataloader)
         for batch_index, (user, item, label) in loader:
             # TODO 7: search the autograd in mxnet
-            user = user.
-            user = torch.autograd.Variable(user, requires_grad=False)
-            item = torch.autograd.Variable(item, requires_grad=False)
-            label = torch.autograd.Variable(label, requires_grad=False)
-
-            outputs = model(user, item)
-            loss = criterion(outputs, label)
-            losses.update(loss.data.item(), user.size(0))
-
-            optimizer.zero_grad()
+            user = user.as_in_context(ctx)
+            # compute the gradient automatically
+            with autograd.record():
+                outputs = model(user, item)
+                loss = mxnet_criterion(outputs, label)
             loss.backward()
-            optimizer.step()
+            trainer.step()
 
             # Save stats to file
             description = ('Epoch {} Loss {loss.val:.4f} ({loss.avg:.4f})'
