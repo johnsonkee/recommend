@@ -11,13 +11,13 @@ import tqdm
 import numpy as np
 import torch
 # import torch.nn as nn
-# from torch import multiprocessing as mp
+from torch import multiprocessing as mp
 
 import mxnet as mx
 from mxnet import nd
 from mxnet import autograd
 from mxnet.gluon import nn
-import multiprocessing as mp
+# import multiprocessing as mp
 
 
 import utils
@@ -58,7 +58,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def predict(model, users, items, batch_size=1024, use_cuda=True):
+def predict(model, users, items, batch_size=1024, use_cuda=True, ctx):
     batches = [(users[i:i + batch_size], items[i:i + batch_size])
                for i in range(0, len(users), batch_size)]
     preds = []
@@ -68,8 +68,7 @@ def predict(model, users, items, batch_size=1024, use_cuda=True):
             # convert numpy'ndarray to mxnet.NDArray
             x = nd.array(x)
             if use_cuda:
-                x = x.cuda(async=True)
-                # TODO 8: find the alternative of torch.autograd.Variable.
+                x = x.as_in_context(ctx)
             return torch.autograd.Variable(x)
         outp = model(proc(user), proc(item), sigmoid=True)
         outp = outp.data.cpu().numpy()
@@ -88,12 +87,12 @@ def _calculate_ndcg(ranked, test_item):
     return 0.
 
 
-def eval_one(rating, items, model, K, use_cuda=True):
+def eval_one(rating, items, model, K, ctx,use_cuda=True):
     user = rating[0]
     test_item = rating[1]
     items.append(test_item)
     users = [user] * len(items)
-    predictions = predict(model, users, items, use_cuda=use_cuda)
+    predictions = predict(model, users, items, use_cuda=use_cuda, ctx=ctx)
 
     map_item_score = {item: pred for item, pred in zip(items, predictions)}
     ranked = heapq.nlargest(K, map_item_score, key=map_item_score.get)
@@ -103,24 +102,26 @@ def eval_one(rating, items, model, K, use_cuda=True):
     return hit, ndcg
 
 
-def val_epoch(model, ratings, negs, K, use_cuda=True, output=None, epoch=None,
+
+def val_epoch(model, ratings, negs, K, ctx, use_cuda=True, output=None, epoch=None,
               processes=1):
     if epoch is None:
         print("Initial evaluation")
     else:
         print("Epoch {} evaluation".format(epoch))
     start = datetime.now()
-    model.eval()
+    # model.eval()
     if processes > 1:
+        # todo : what is it in torch
         context = mp.get_context('spawn')
-        _eval_one = partial(eval_one, model=model, K=K, use_cuda=use_cuda)
+        _eval_one = partial(eval_one, model=model, K=K, use_cuda=use_cuda, ctx=ctx)
         with context.Pool(processes=processes) as workers:
             hits_and_ndcg = workers.starmap(_eval_one, zip(ratings, negs))
         hits, ndcgs = zip(*hits_and_ndcg)
     else:
         hits, ndcgs = [], []
         for rating, items in zip(ratings, negs):
-            hit, ndcg = eval_one(rating, items, model, K, use_cuda=use_cuda)
+            hit, ndcg = eval_one(rating, items, model, K, use_cuda=use_cuda, ctx=ctx)
             hits.append(hit)
             ndcgs.append(ndcg)
 
@@ -162,7 +163,7 @@ def main():
 
     # Check that GPUs are actually available
     # TODO 2: find cuda's availability in mxnet  solved
-    use_cuda = not args.no_cuda and torch.cuda.is_available()
+    use_cuda = not args.no_cuda and mx.test_utils.list_gpus()
 
     t1 = time.time()
     # Load Data
@@ -175,6 +176,7 @@ def main():
     train_dataloader = mx.gluon.data.DataLoader(
             dataset=train_dataset, batch_size=args.batch_size, shuffle=True,  # shuffle means random the samples
             num_workers=8)  # TODO 4: find out the meaning of pin_memory solved
+
     test_ratings = load_test_ratings(os.path.join(args.data, TEST_RATINGS_FILENAME))  # noqa: E501
     test_negs = load_test_negs(os.path.join(args.data, TEST_NEG_FILENAME))
     nb_users, nb_items = train_dataset.nb_users, train_dataset.nb_items       ##nb_users nb_items是dataset里的名字
@@ -207,14 +209,13 @@ def main():
 
     # Calculate initial Hit Ratio and NDCG
     hits, ndcgs = val_epoch(model, test_ratings, test_negs, args.topk,
-                            use_cuda=use_cuda, processes=args.processes)
+                            use_cuda=use_cuda, processes=args.processes, ctx=ctx)
     print('Initial HR@{K} = {hit_rate:.4f}, NDCG@{K} = {ndcg:.4f}'
           .format(K=args.topk, hit_rate=np.mean(hits), ndcg=np.mean(ndcgs)))
 
 ############### hyperparameters
 
     # Add optimizer and loss to graph
-    # TODO 5: find the optimizer"Adam" and criterion in mxnet
     lr = args.learning_rate
     bs = args.batch_size
 
@@ -234,13 +235,14 @@ def main():
         loader = tqdm.tqdm(train_dataloader)
         for batch_index, (user, item, label) in loader:
             # TODO 7: search the autograd in mxnet
+            # todo : let user act in gpu
             user = user.as_in_context(ctx)
             # compute the gradient automatically
             with autograd.record():
                 outputs = model(user, item)
                 loss = mxnet_criterion(outputs, label)
             loss.backward()
-            trainer.step()
+            trainer.step(bs)
 
             # Save stats to file
             description = ('Epoch {} Loss {loss.val:.4f} ({loss.avg:.4f})'
@@ -251,7 +253,7 @@ def main():
         begin = time.time()
         hits, ndcgs = val_epoch(model, test_ratings, test_negs, args.topk,
                                 use_cuda=use_cuda, output=valid_results_file,
-                                epoch=epoch, processes=args.processes)
+                                epoch=epoch, processes=args.processes, ctx=ctx)
         val_time = time.time() - begin
         print('Epoch {epoch}: HR@{K} = {hit_rate:.4f}, NDCG@{K} = {ndcg:.4f},'
               ' train_time = {train_time:.2f}, val_time = {val_time:.2f}'
