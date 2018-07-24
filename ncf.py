@@ -185,6 +185,7 @@ def main():
         ctx = mx.gpu(3)  # default to use NO.3 gpu
     else:
         ctx = mx.cpu(0)
+
     # Create model
     model = NeuMF(nb_users, nb_items,
                   mf_dim=args.factors, mf_reg=0.,
@@ -200,21 +201,21 @@ def main():
     with open(os.path.join(run_dir, 'model.txt'), 'w') as file:
         file.write(str(model))
 
+############### hyperparameters
+
     # Add optimizer and loss to graph
     # TODO 5: find the optimizer"Adam" and criterion in mxnet
-    mxnet_optimizer = mx.optimizer.Adam(learning_rate=args.learing_rate)
+    lr = args.learning_rate
+
     optimizer = torch.optim.Adam(model.parameters(), lr=args.learning_rate)
-
-    criterion = nn.BCEWithLogitsLoss()
-
+    trainer = mx.gluon.Trainer(model.collect_params(),'adam',{'learning_rate': lr})
+    
     mxnet_criterion = mx.gluon.loss.SigmoidBinaryCrossEntropyLoss()
-
-
     # TODO 6: to find whether the optimizer and criterion in mxnet possess cuda()
-    if use_cuda:
-        # Move model and loss to GPU
-        model = model.cuda()
-        criterion = criterion.cuda()
+    # if use_cuda:
+    #    # Move model and loss to GPU
+    #    model = model.cuda()
+    #    criterion = criterion.cuda()
 
     # Create files for tracking training
     valid_results_file = os.path.join(run_dir, 'valid_results.csv')
