@@ -36,29 +36,29 @@ class NeuMF(nn.Block): #if using nn.Hybridblock, it will generate static graph
             self.final = nn.Dense(in_units=mlp_layer_sizes[-1] + mf_dim, units=1) # the final fully-connected layer
 
             # initialization
-            self.mf_user_embed.weight.data = nd.random.normal(0., 0.01, self.mf_user_embed.weight.shape)
-            self.mf_item_embed.weight.data = nd.random.normal(0., 0.01, self.mf_item_embed.weight.shape)
-            self.mlp_user_embed.weight.data = nd.random.normal(0., 0.01, self.mlp_user_embed.weight.shape)
-            self.mlp_item_embed.weight.data = nd.random.normal(0., 0.01, self.mlp_item_embed.weight.shape)
+            self.mf_user_embed.weight.data = nd.random.normal(0., 0.01, self.mf_user_embed.weight.shape, ctx=ctx)
+            self.mf_item_embed.weight.data = nd.random.normal(0., 0.01, self.mf_item_embed.weight.shape, ctx=ctx)
+            self.mlp_user_embed.weight.data = nd.random.normal(0., 0.01, self.mlp_user_embed.weight.shape, ctx=ctx)
+            self.mlp_item_embed.weight.data = nd.random.normal(0., 0.01, self.mlp_item_embed.weight.shape, ctx=ctx)
             # golorot_uniform is one of a initialization, always used in fc layers, convolution layers, preventing its
             # saturation
-            def golorot_uniform(layer):
+            def golorot_uniform(layer, ctx):
                 # TODO 2: what is layer.in_feature
                 fan_out, fan_in = layer.weight.shape  #
                 limit = np.sqrt(6. / (fan_in + fan_out))
-                layer.weight.data = nd.uniform(-limit, limit)
+                layer.weight.data = nd.uniform(-limit, limit, ctx=ctx)
 
-            def lecunn_uniform(layer):
+            def lecunn_uniform(layer, ctx):
                 fan_out, fan_in = layer.weight.shape  # noqa: F841, E501
                 limit = np.sqrt(3. / fan_in)
-                layer.weight.data = nd.uniform(-limit, limit)
+                layer.weight.data = nd.uniform(-limit, limit, ctx=ctx)
 
             for layer in self.mlp:
                 if type(layer) != nn.Dense:
                     continue
-                golorot_uniform(layer)
+                golorot_uniform(layer, ctx)
 
-            lecunn_uniform(self.final)
+            lecunn_uniform(self.final,ctx)
 
     def forward(self, user, item, sigmoid=False):
         xmfu = self.mf_user_embed(user)  # user vector in matrix factorization

@@ -160,7 +160,7 @@ def main():
     utils.save_config(config, run_dir)   #defined in utils.py
 
     # Check that GPUs are actually available
-    # TODO 2: find cuda'savailability in mxnet
+    # TODO 2: find cuda's availability in mxnet
     use_cuda = not args.no_cuda and torch.cuda.is_available()
 
     t1 = time.time()
@@ -181,11 +181,13 @@ def main():
           % (time.time()-t1, nb_users, nb_items, train_dataset.mat.nnz,
              len(test_ratings)))
 
+    ctx = use_cuda
     # Create model
     model = NeuMF(nb_users, nb_items,
                   mf_dim=args.factors, mf_reg=0.,
                   mlp_layer_sizes=args.layers,
-                  mlp_layer_regs=[0. for i in args.layers])
+                  mlp_layer_regs=[0. for i in args.layers],
+                  ctx=ctx)
     print(model)
     print("{} parameters".format(utils.count_parameters(model)))
 
