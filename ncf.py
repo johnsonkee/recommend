@@ -207,10 +207,9 @@ def main():
     # TODO 5: find the optimizer"Adam" and criterion in mxnet
     lr = args.learning_rate
 
-    optimizer = torch.optim.Adam(model.parameters(), lr=args.learning_rate)
     trainer = mx.gluon.Trainer(model.collect_params(),'adam',{'learning_rate': lr})
-    
-    mxnet_criterion = mx.gluon.loss.SigmoidBinaryCrossEntropyLoss()
+    mxnet_criterion = mx.gluon.loss.SigmoidBinaryCrossEntropyLoss()   # equivalent to lossfunction
+
     # TODO 6: to find whether the optimizer and criterion in mxnet possess cuda()
     # if use_cuda:
     #    # Move model and loss to GPU
@@ -225,6 +224,11 @@ def main():
                             use_cuda=use_cuda, processes=args.processes)
     print('Initial HR@{K} = {hit_rate:.4f}, NDCG@{K} = {ndcg:.4f}'
           .format(K=args.topk, hit_rate=np.mean(hits), ndcg=np.mean(ndcgs)))
+
+    # use the hybridize method to accelerate the process
+    model.hybridize()
+
+    # training
     for epoch in range(args.epochs):
         model.train()
         losses = utils.AverageMeter()
@@ -232,15 +236,12 @@ def main():
         begin = time.time()
         # tqdm shows the percentage of the process
         loader = tqdm.tqdm(train_dataloader)
-        for batch_index, (user, item, label) in enumerate(loader):
+        for batch_index, (user, item, label) in loader:
             # TODO 7: search the autograd in mxnet
+            user = user.
             user = torch.autograd.Variable(user, requires_grad=False)
             item = torch.autograd.Variable(item, requires_grad=False)
             label = torch.autograd.Variable(label, requires_grad=False)
-            if use_cuda:
-                user = user.cuda(async=True)
-                item = item.cuda(async=True)
-                label = label.cuda(async=True)
 
             outputs = model(user, item)
             loss = criterion(outputs, label)
