@@ -58,17 +58,18 @@ def parse_args():
     return parser.parse_args()
 
 
-def predict(model, users, items, batch_size=1024, use_cuda=True, ctx):
+def predict(model, users, items, ctx, batch_size=1024, use_cuda=True):
     batches = [(users[i:i + batch_size], items[i:i + batch_size])
                for i in range(0, len(users), batch_size)]
     preds = []
+
     for user, item in batches:
         def proc(x):
             x = np.array(x)
             # convert numpy'ndarray to mxnet.NDArray
             x = nd.array(x)
             if use_cuda:
-                x = x.as_in_context(ctx)
+                x = x.as_in_context(ctx)# todo
             return torch.autograd.Variable(x)
         outp = model(proc(user), proc(item), sigmoid=True)
         outp = outp.data.cpu().numpy()
@@ -112,7 +113,6 @@ def val_epoch(model, ratings, negs, K, ctx, use_cuda=True, output=None, epoch=No
     start = datetime.now()
     # model.eval()
     if processes > 1:
-        # todo : what is it in torch
         context = mp.get_context('spawn')
         _eval_one = partial(eval_one, model=model, K=K, use_cuda=use_cuda, ctx=ctx)
         with context.Pool(processes=processes) as workers:
@@ -146,9 +146,8 @@ def main():
     args = parse_args()
     if args.seed is not None:
         print("Using seed = {}".format(args.seed))
-        # TODO 1: can't find manual_seed in mxnet      SOLVED
         # torch.manual_seed(args.seed)
-        mx.random.seed(seed_state=args.seed)  # TODO 1.1:why should we use seed?
+        mx.random.seed(seed_state=args.seed)
         np.random.seed(seed=args.seed)
 
     # Save configuration to file
@@ -162,7 +161,6 @@ def main():
     utils.save_config(config, run_dir)   #defined in utils.py
 
     # Check that GPUs are actually available
-    # TODO 2: find cuda's availability in mxnet  solved
     use_cuda = not args.no_cuda and mx.test_utils.list_gpus()
 
     t1 = time.time()
@@ -170,12 +168,11 @@ def main():
     print('Loading data')
     train_dataset = CFTrainDataset(
         os.path.join(args.data, TRAIN_RATINGS_FILENAME), args.negative_samples)
-    # TODO 3: to find the alternation of dataloaeder in mxnet; state : solved
     #in original file, use 8 core as defaul
 
     train_dataloader = mx.gluon.data.DataLoader(
             dataset=train_dataset, batch_size=args.batch_size, shuffle=True,  # shuffle means random the samples
-            num_workers=8)  # TODO 4: find out the meaning of pin_memory solved
+            num_workers=8)
 
     test_ratings = load_test_ratings(os.path.join(args.data, TEST_RATINGS_FILENAME))  # noqa: E501
     test_negs = load_test_negs(os.path.join(args.data, TEST_NEG_FILENAME))
@@ -236,7 +233,7 @@ def main():
         for batch_index, (user, item, label) in loader:
             # TODO 7: search the autograd in mxnet
             # todo : let user act in gpu
-            user = user.as_in_context(ctx)
+            user = nd.array
             # compute the gradient automatically
             with autograd.record():
                 outputs = model(user, item)
