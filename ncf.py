@@ -70,7 +70,7 @@ def predict(model, users, items, ctx, batch_size=1024, use_cuda=True):
             x = nd.array(x)
             if use_cuda:
                 x = x.as_in_context(ctx)# todo
-            return torch.autograd.Variable(x)
+            return x
         outp = model(proc(user), proc(item), sigmoid=True)
         outp = outp.data.cpu().numpy()
         preds += list(outp.flatten())
@@ -233,7 +233,13 @@ def main():
         for batch_index, (user, item, label) in loader:
             # TODO 7: search the autograd in mxnet
             # todo : let user act in gpu
-            user = nd.array
+            user = nd.array(user)
+            label = nd.array(user)
+            item = nd.array(item)
+
+            user = user.as_in_context(ctx)
+            label = label.as_in_context(ctx)
+            item = item.as_in_context(ctx)
             # compute the gradient automatically
             with autograd.record():
                 outputs = model(user, item)
