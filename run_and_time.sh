@@ -19,10 +19,10 @@ if unzip ml-20m.zip
 then
     echo "Start processing ml-20m/ratings.csv"
     t0=$(date +%s)
-	python $BASEDIR/convert.py ml-20m/ratings.csv ml-20m --negatives 999
+	python $BASEDIR/convert.py ml-latest-small/ratings.csv ml-20m --negatives 999
     t1=$(date +%s)
 	delta=$(( $t1 - $t0 ))
-    echo "Finish processing ml-20m/ratings.csv in $delta seconds"
+    echo "Finish processing ml-latest-small/ratings.csv in $delta seconds"
 
     echo "Start training"
     t0=$(date +%s)

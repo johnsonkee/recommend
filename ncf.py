@@ -182,7 +182,7 @@ def main():
              len(test_ratings)))
 
     if(use_cuda):
-        ctx = mx.gpu(3)  # default to use NO.3 gpu
+        ctx = mx.test_utils.list_gpus()  # default to use NO.3 gpu
     else:
         ctx = mx.cpu(0)
 
@@ -225,8 +225,6 @@ def main():
     # training
     for epoch in range(args.epochs):
 
-        losses = utils.AverageMeter()
-
         begin = time.time()
         # tqdm shows the percentage of the process
         loader = tqdm.tqdm(train_dataloader)
@@ -249,7 +247,7 @@ def main():
 
             # Save stats to file
             description = ('Epoch {} Loss {loss.val:.4f} ({loss.avg:.4f})'
-                           .format(epoch, loss=losses))
+                           .format(epoch, loss=loss))
             loader.set_description(description)
 
         train_time = time.time() - begin

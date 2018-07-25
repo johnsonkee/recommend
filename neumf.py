@@ -86,8 +86,10 @@ def main():
     model = NeuMF(138493, 26744,
                   mf_dim=64, mf_reg=0.,
                   mlp_layer_sizes = [256,128,64],
-                  mlp_layer_regs=[0. for i in [256,128,64]] )
+                  mlp_layer_regs=[0. for i in [256,128,64]],
+                  ctx=mxnet.cpu(0))
     print(model)
+    model.save_parameters("/home/net.params")
 
 if __name__ == '__main__':
     main()
