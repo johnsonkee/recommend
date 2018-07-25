@@ -17,7 +17,7 @@ import mxnet as mx
 from mxnet import nd
 from mxnet import autograd
 from mxnet.gluon import nn
-# import multiprocessing as mp
+import multiprocessing as mp
 
 
 import utils
@@ -193,13 +193,15 @@ def main():
                   mlp_layer_regs=[0. for i in args.layers],
                   ctx=ctx)
     print(model)
+    print(type(model))
     # todo 9: to change the function in utils
-    print("{} parameters".format(utils.count_parameters(model)))
+    # print("{} parameters".format(utils.count_parameters(model)))
 
     # model.collect_params()
     # Save model text description
     with open(os.path.join(run_dir, 'model.txt'), 'w') as file:
         file.write(str(model))
+    # model.save_parameters(os.path.join("/home/net.params", 'net.params'))
 
     # Create files for tracking training
     valid_results_file = os.path.join(run_dir, 'valid_results.csv')
@@ -268,8 +270,7 @@ def main():
                 run_dir = "./run/neumf/{}".format(config['timestamp'])
                 with open(os.path.join(run_dir, 'model.txt'), 'w') as file:
                     file.write(str(model))
+                # model.save_parameters(os.path.join("/home/net.params",'net.params'))
                 return 0
-
-
 if __name__ == '__main__':
     main()
