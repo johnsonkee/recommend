@@ -9,7 +9,7 @@ from argparse import ArgumentParser
 
 import tqdm
 import numpy as np
-# import torch
+import torch
 # import torch.nn as nn
 # from torch import multiprocessing as mp
 
@@ -30,7 +30,7 @@ from convert import (TEST_NEG_FILENAME, TEST_RATINGS_FILENAME,
 def parse_args():
     parser = ArgumentParser(description="Train a Nerual Collaborative"
                                         " Filtering model")
-    parser.add_argument('data', type=str,
+    parser.add_argument('-data', type=str,default='ml-20m',
                         help='path to test and training data files')
     parser.add_argument('-e', '--epochs', type=int, default=20,
                         help='number of epochs for training')
@@ -71,7 +71,7 @@ def predict(model, users, items, ctx, batch_size=1024, use_cuda=True):
             if use_cuda:
                 x = x.as_in_context(ctx)# todo
             return x
-        outp = model(proc(user), proc(item), sigmoid=True)
+        outp = model(proc(user), proc(item))# sigmoid=True
         outp = outp.data.cpu().numpy()
         preds += list(outp.flatten())
     return preds
@@ -103,7 +103,7 @@ def eval_one(rating, items, model, K, ctx,use_cuda=True):
     return hit, ndcg
 
 
-
+# K meand topk
 def val_epoch(model, ratings, negs, K, ctx, use_cuda=True, output=None, epoch=None,
               processes=1):
     if epoch is None:
@@ -112,11 +112,14 @@ def val_epoch(model, ratings, negs, K, ctx, use_cuda=True, output=None, epoch=No
         print("Epoch {} evaluation".format(epoch))
     start = datetime.now()
     # model.eval()
+
     if processes > 1:
+
         context = mp.get_context('spawn')
+
         _eval_one = partial(eval_one, model=model, K=K, use_cuda=use_cuda, ctx=ctx)
         with context.Pool(processes=processes) as workers:
-            hits_and_ndcg = workers.starmap(_eval_one, zip(ratings, negs))
+            hits_and_ndcg = workers.starmap(_eval_one, zip(ratings, negs))  #TODO ：？？？
         hits, ndcgs = zip(*hits_and_ndcg)
     else:
         hits, ndcgs = [], []
@@ -182,7 +185,7 @@ def main():
              len(test_ratings)))
 
     if(use_cuda):
-        ctx = mx.test_utils.list_gpus()  # default to use NO.3 gpu
+        ctx = mx.gpu(3)  # default to use NO.3 gpu
     else:
         ctx = mx.cpu(0)
 

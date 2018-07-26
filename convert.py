@@ -23,9 +23,10 @@ TEST_NEG_FILENAME = 'test-negative.csv'
 
 def parse_args():
     parser = ArgumentParser()
-    parser.add_argument('path', type=str,
+    # TODO ：delete the default choice
+    parser.add_argument('-path', type=str,default='ml-20m/ratings.csv',
                         help='Path to reviews CSV file from MovieLens')
-    parser.add_argument('output', type=str,
+    parser.add_argument('-output', type=str, default='ml-20m',
                         help='Output directory for train and test CSV files')
     parser.add_argument('-n', '--negatives', type=int, default=999,
                         help='Number of negative samples for each positive'
@@ -43,7 +44,7 @@ def main():
     df = implicit_load(args.path, sort=False)
     print("Filtering out users with less than {} ratings".format(MIN_RATINGS))
     grouped = df.groupby(USER_COLUMN)
-    df = grouped.filter(lambda x: len(x) >= MIN_RATINGS)
+    df = grouped.filter(lambda x: len(x) >= MIN_RATINGS)  # delete some users who rated more than 20 items
 
     print("Mapping original user and item IDs to new sequential IDs")
     original_users = df[USER_COLUMN].unique()
