@@ -71,7 +71,7 @@ def predict(model, users, items, ctx, batch_size=1024, use_cuda=True):
             if use_cuda:
                 x = x.as_in_context(ctx)# todo
             return x
-        outp = model(proc(user), proc(item))# sigmoid=True
+        outp = model(proc(user), proc(item), sigmoid=True)
         outp = outp.data.cpu().numpy()
         preds += list(outp.flatten())
     return preds

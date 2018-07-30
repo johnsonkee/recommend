@@ -1,12 +1,9 @@
 import matplotlib.pyplot as plt
 import numpy as np
-"""
-x = np.linspace(-5,5,100)
-y = 1/(1 + np.exp(-x))
-plt.plot(y)
-plt.grid(True)
-plt.legend("jj")
-plt.show()
-"""
+from mxnet import autograd,nd
 
-
+num_inputs = 2
+num_examples = 1000
+true_w = [2, -3.4]
+true_b = 4.2
+features = nd.random.normal(scale=1, shape=(num_examples, num_inputs))

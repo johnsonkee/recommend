@@ -1,7 +1,7 @@
 import numpy as np
 from mxnet.gluon import nn
 from mxnet import nd
-import mxnet
+import mxnet as mx
 
 # in mxnet ,using mxnet.gluon.nn.Block to initiate the the deep neural network
 class NeuMF(nn.Block): #if using nn.Hybridblock, it will generate static graph
@@ -31,8 +31,7 @@ class NeuMF(nn.Block): #if using nn.Hybridblock, it will generate static graph
 
             self.mlp = nn.Sequential()
             for i in range(1, nb_mlp_layers):
-                self.mlp.add([nn.Dense(units=mlp_layer_sizes[i],in_units=mlp_layer_sizes[i-1])])  # noqa: E501 # previous one is in
-                                    # latter one is out
+                self.mlp.add(nn.Dense(units=mlp_layer_sizes[i],in_units=mlp_layer_sizes[i-1],activation='relu'))
             self.final = nn.Dense(in_units=mlp_layer_sizes[-1] + mf_dim, units=1) # the final fully-connected layer
 
             # initialization
@@ -44,7 +43,7 @@ class NeuMF(nn.Block): #if using nn.Hybridblock, it will generate static graph
             # saturation
             def golorot_uniform(layer, ctx):
                 # TODO 2: what is layer.in_feature
-                fan_out, fan_in = layer.weight.shape  #
+                fan_out, fan_in = layer.weight.shape
                 limit = np.sqrt(6. / (fan_in + fan_out))
                 layer.weight.data = nd.uniform(-limit, limit, ctx=ctx)
 
@@ -83,13 +82,16 @@ class NeuMF(nn.Block): #if using nn.Hybridblock, it will generate static graph
 
 def main():
 
-    model = NeuMF(138493, 26744,
+    model = NeuMF(1000, 1000,
                   mf_dim=64, mf_reg=0.,
                   mlp_layer_sizes = [256,128,64],
                   mlp_layer_regs=[0. for i in [256,128,64]],
-                  ctx=mxnet.cpu(0))
+                  ctx=mx.cpu(0))
     print(model)
-
+    a = nd.ones(1000)
+    b = nd.ones(1000)
+    model(a,b)
+    # model(nd.ones(1000),nd.ones(1000))
 
 if __name__ == '__main__':
     main()
