@@ -6,6 +6,7 @@ from functools import partial
 from datetime import datetime
 from collections import OrderedDict
 from argparse import ArgumentParser
+import pdb
 
 import tqdm
 import numpy as np
@@ -63,15 +64,16 @@ def predict(model, users, items, ctx, batch_size=1024, use_cuda=True):
                for i in range(0, len(users), batch_size)]
     preds = []
 
+    pdb.set_trace()
     for user, item in batches:
         def proc(x):
-            x = np.array(x)
             # convert numpy'ndarray to mxnet.NDArray
             x = nd.array(x)
             if use_cuda:
                 x = x.as_in_context(ctx)# todo
             return x
-        outp = model(proc(user), proc(item), sigmoid=True)
+            # TODO: data dimension is not suitable for the network
+        outp = model(proc(user), proc(item), True)
         outp = outp.data.cpu().numpy()
         preds += list(outp.flatten())
     return preds
@@ -119,7 +121,7 @@ def val_epoch(model, ratings, negs, K, ctx, use_cuda=True, output=None, epoch=No
 
         _eval_one = partial(eval_one, model=model, K=K, use_cuda=use_cuda, ctx=ctx)
         with context.Pool(processes=processes) as workers:
-            hits_and_ndcg = workers.starmap(_eval_one, zip(ratings, negs))  #TODO ：？？？
+            hits_and_ndcg = workers.starmap(_eval_one, zip(ratings, negs))
         hits, ndcgs = zip(*hits_and_ndcg)
     else:
         hits, ndcgs = [], []
@@ -185,7 +187,7 @@ def main():
              len(test_ratings)))
 
     if(use_cuda):
-        ctx = mx.gpu(3)  # default to use NO.3 gpu
+        ctx = [mx.gpu(i) for i in mx.test_utils.list_gpus()] # default to use NO.3 gpu
     else:
         ctx = mx.cpu(0)
 
@@ -195,6 +197,7 @@ def main():
                   mlp_layer_sizes=args.layers,
                   mlp_layer_regs=[0. for i in args.layers],
                   ctx=ctx)
+    model.initialize()
     print(model)
     print(type(model))
     # todo 9: to change the function in utils
@@ -225,6 +228,7 @@ def main():
     mxnet_criterion = mx.gluon.loss.SigmoidBinaryCrossEntropyLoss()   # equivalent to lossfunction
 
     # use the hybridize method to accelerate the process
+
     model.hybridize()
 
     # training
@@ -239,10 +243,12 @@ def main():
             user = nd.array(user)
             label = nd.array(user)
             item = nd.array(item)
+            user.shape
 
             user = user.as_in_context(ctx)
             label = label.as_in_context(ctx)
             item = item.as_in_context(ctx)
+
             # compute the gradient automatically
             with autograd.record():
                 outputs = model(user, item)

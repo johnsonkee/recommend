@@ -68,7 +68,7 @@ class NeuMF(nn.Block): #if using nn.Hybridblock, it will generate static graph
             x = nd.sigmoid(x)
 
 def main():
-
+#jiji
     model = NeuMF(1000, 1000,
                   mf_dim=64, mf_reg=0.,
                   mlp_layer_sizes = [256,128,64],
@@ -76,8 +76,8 @@ def main():
                   ctx=mx.cpu(0))
     print(model)
     model.initialize()
-    a = nd.ones([1,1000])
-    b = nd.ones([1,1000])
+    a = nd.ones([10,1000])
+    b = nd.ones([10,1000])
     model(a,b,True)  # 在调用model时，参数里不要带着参数名，直接写变量就好
 
 
