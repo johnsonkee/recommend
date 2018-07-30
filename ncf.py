@@ -181,7 +181,8 @@ def main():
 
     test_ratings = load_test_ratings(os.path.join(args.data, TEST_RATINGS_FILENAME))  # noqa: E501
     test_negs = load_test_negs(os.path.join(args.data, TEST_NEG_FILENAME))
-    nb_users, nb_items = train_dataset.nb_users, train_dataset.nb_items       ##nb_users nb_items是dataset里的名字
+    nb_users, nb_items = train_dataset.nb_users, train_dataset.nb_items
+
     print('Load data done [%.1f s]. #user=%d, #item=%d, #train=%d, #test=%d'
           % (time.time()-t1, nb_users, nb_items, train_dataset.mat.nnz,
              len(test_ratings)))
