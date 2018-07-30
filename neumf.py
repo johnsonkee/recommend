@@ -40,34 +40,12 @@ class NeuMF(nn.Block): #if using nn.Hybridblock, it will generate static graph
                 self.mlp.add(nn.Dense(units=mlp_layer_sizes[i],
                                       in_units=mlp_layer_sizes[i-1],
                                       activation='relu',
-                                      weight_initializer=mx.init.Xavier()))
+                                      weight_initializer=mx.init.Xavier(magnitude=6)))
             self.final = nn.Dense(in_units=mlp_layer_sizes[-1] + mf_dim,
                                   units=1,
                                   weight_initializer=mx.init.Xavier())
+                                  # the default magnitude is 3
                                   # the final fully-connected layer
-
-            # initialization
-            # golorot_uniform is one of a initialization, always used in fc layers, convolution layers, preventing its
-            # saturation
-            """
-            def golorot_uniform(layer, ctx):
-                # TODO 2: what is layer.in_feature
-                fan_out, fan_in = layer.weight.shape
-                limit = np.sqrt(6. / (fan_in + fan_out))
-                layer.weight.data = nd.uniform(-limit, limit, ctx=ctx)
-
-            def lecunn_uniform(layer, ctx):
-                fan_out, fan_in = layer.weight.shape  # noqa: F841, E501
-                limit = np.sqrt(3. / fan_in)
-                layer.weight.data = nd.uniform(-limit, limit, ctx=ctx)
-
-            for layer in self.mlp:
-                if type(layer) != nn.Dense:
-                    continue
-                golorot_uniform(layer, ctx)
-
-            lecunn_uniform(self.final,ctx)
-            """
 
     def forward(self, user, item, sigmoid=False):
         xmfu = self.mf_user_embed(user)  # user vector in matrix factorization
@@ -89,7 +67,6 @@ class NeuMF(nn.Block): #if using nn.Hybridblock, it will generate static graph
         if sigmoid:
             x = nd.sigmoid(x)
 
-
 def main():
 
     model = NeuMF(1000, 1000,
@@ -101,6 +78,8 @@ def main():
     model.initialize()
     a = nd.ones([1,1000])
     b = nd.ones([1,1000])
-    model(a,b)
+    model(a,b,True)  # 在调用model时，参数里不要带着参数名，直接写变量就好
+
+
 if __name__ == '__main__':
     main()
