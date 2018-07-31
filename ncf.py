@@ -231,14 +231,12 @@ def main():
 
     # training
     for epoch in range(args.epochs):
-
         begin = time.time()
         # tqdm shows the percentage of the process
         loader = tqdm.tqdm(train_dataloader)
         for batch_index, (user, item, label) in enumerate(loader):
             # TODO 7: search the autograd in mxnet
             # todo : let user act in gpu
-            pdb.set_trace()
             user = nd.array(user)
             item = nd.array(item)
             label = nd.array(label)
@@ -251,15 +249,15 @@ def main():
             # compute the gradient automatically
             with autograd.record():
                 outputs = model(user, item)
-                pdb.set_trace()
                 loss = mxnet_criterion(outputs, label.T)
+
             loss.backward()
             trainer.step(bs)
 
             # Save stats to file
-            description = ('Epoch {} Loss {loss.val:.4f} ({loss.avg:.4f})'
-                           .format(epoch, loss=loss))
-            loader.set_description(description)
+            # description = ('Epoch {} Average Loss {loss:.4f}'
+            #                .format(epoch, loss=loss.mean()))
+            # loader.set_description(description)
 
         train_time = time.time() - begin
         begin = time.time()
