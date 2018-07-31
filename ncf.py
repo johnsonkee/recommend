@@ -43,6 +43,7 @@ def parse_args():
     parser.add_argument('--layers', nargs='+', type=int,
                         default=[64, 32, 16, 8],
                         help='size of hidden layers for MLP')
+                        # TODO: change the negs's default nb
     parser.add_argument('-n', '--negative-samples', type=int, default=4,
                         help='number of negative examples per interaction')
     parser.add_argument('-l', '--learning-rate', type=float, default=0.001,
@@ -175,8 +176,9 @@ def main():
         os.path.join(args.data, TRAIN_RATINGS_FILENAME), args.negative_samples)
     #in original file, use 8 core as defaul
 
+    # shuffle means random the samples
     train_dataloader = mx.gluon.data.DataLoader(
-            dataset=train_dataset, batch_size=args.batch_size, shuffle=True,  # shuffle means random the samples
+            dataset=train_dataset, batch_size=args.batch_size, shuffle=True,
             num_workers=8)
 
     test_ratings = load_test_ratings(os.path.join(args.data, TEST_RATINGS_FILENAME))  # noqa: E501
@@ -236,18 +238,22 @@ def main():
         begin = time.time()
         # tqdm shows the percentage of the process
         loader = tqdm.tqdm(train_dataloader)
-        for batch_index, (user, item, label) in loader:
+        for batch_index, (user, item, label) in enumerate(loader):
             # TODO 7: search the autograd in mxnet
             # todo : let user act in gpu
             user = nd.array(user)
-            label = nd.array(user)
             item = nd.array(item)
-            user.shape
+            label = nd.array(user)
 
             user = user.as_in_context(ctx)
-            label = label.as_in_context(ctx)
             item = item.as_in_context(ctx)
+            label = label.as_in_context(ctx)
 
+            # TEMP:
+            a = nd.ones([1,671])
+            a1 = nd.ones([1,9066])
+            model(a,a1)
+            pdb.set_trace()
             # compute the gradient automatically
             with autograd.record():
                 outputs = model(user, item)
@@ -280,5 +286,6 @@ def main():
                     file.write(str(model))
                 # model.save_parameters(os.path.join("/home/net.params",'net.params'))
                 return 0
+
 if __name__ == '__main__':
     main()

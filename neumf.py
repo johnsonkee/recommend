@@ -66,6 +66,7 @@ class NeuMF(nn.Block): #if using nn.Hybridblock, it will generate static graph
         x = self.final(x)
         if sigmoid:
             x = nd.sigmoid(x)
+        return x
 
 def main():
 #jiji
@@ -79,6 +80,9 @@ def main():
     a = nd.ones([10,1000])
     b = nd.ones([10,1000])
     model(a,b,True)  # 在调用model时，参数里不要带着参数名，直接写变量就好
+    c = model(a,b,True)
+    print(c)
+
 
 
 if __name__ == '__main__':
