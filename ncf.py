@@ -75,7 +75,7 @@ def predict(model, users, items, ctx, batch_size=1024, use_cuda=True):
             return x
             # TODO: data dimension is not suitable for the network
         outp = model(proc(user), proc(item), True)
-        outp = outp.cpu().numpy()
+        outp = outp.as_in_context(ctx).asnumpy()
         preds += list(outp.flatten())
     return preds
 
@@ -228,9 +228,6 @@ def main():
     trainer = mx.gluon.Trainer(model.collect_params(),'adam',{'learning_rate': lr})
     mxnet_criterion = mx.gluon.loss.SigmoidBinaryCrossEntropyLoss()   # equivalent to lossfunction
 
-    # use the hybridize method to accelerate the process
-
-    model.hybridize()
 
     # training
     for epoch in range(args.epochs):
@@ -241,25 +238,21 @@ def main():
         for batch_index, (user, item, label) in enumerate(loader):
             # TODO 7: search the autograd in mxnet
             # todo : let user act in gpu
+            pdb.set_trace()
             user = nd.array(user)
             item = nd.array(item)
-            label = nd.array(user)
+            label = nd.array(label)
 
             user = user.as_in_context(ctx)
             item = item.as_in_context(ctx)
             label = label.as_in_context(ctx)
 
-            # TEMP:
-            a = nd.ones([1,671])
-            a1 = nd.ones([1,9066])
-            print(model(a,a1))
-            # TEMP:
 
-            pdb.set_trace()
             # compute the gradient automatically
             with autograd.record():
                 outputs = model(user, item)
-                loss = mxnet_criterion(outputs, label)
+                pdb.set_trace()
+                loss = mxnet_criterion(outputs, label.T)
             loss.backward()
             trainer.step(bs)
 
