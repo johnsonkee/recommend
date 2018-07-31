@@ -1,3 +1,4 @@
+#coding=utf-8
 import numpy as np
 from mxnet.gluon import nn
 from mxnet import nd

@@ -28,7 +28,7 @@ def count_parameters(model):
 
 
 def save_config(config, run_dir):
-    path = os.path.join(run_dir, "config_{}.json".format(config['timestamp'])) # 把format里面的内容复制到前边的{}里
+    path = os.path.join(run_dir, "config_{}.json".format(config['timestamp'])) 
     with open(path, 'w') as config_file:
         json.dump(config, config_file)
         config_file.write('\n')

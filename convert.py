@@ -24,9 +24,9 @@ TEST_NEG_FILENAME = 'test-negative.csv'
 def parse_args():
     parser = ArgumentParser()
     # TODO ：delete the default choice
-    parser.add_argument('-path', type=str,default='ml-20m/ratings.csv',
+    parser.add_argument('path', type=str,default='ml-20m/ratings.csv',
                         help='Path to reviews CSV file from MovieLens')
-    parser.add_argument('-output', type=str, default='ml-20m',
+    parser.add_argument('output', type=str, default='ml-20m',
                         help='Output directory for train and test CSV files')
     parser.add_argument('-n', '--negatives', type=int, default=999,
                         help='Number of negative samples for each positive'
