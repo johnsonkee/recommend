@@ -2,7 +2,6 @@ import numpy as np
 from mxnet.gluon import nn
 from mxnet import nd
 import mxnet as mx
-import pdb
 
 # in mxnet ,using mxnet.gluon.nn.Block to initiate the the deep neural network
 class NeuMF(nn.HybridBlock): #if using nn.Hybridblock, it will generate static graph

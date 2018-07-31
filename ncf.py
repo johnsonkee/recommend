@@ -11,7 +11,7 @@ import pdb
 
 import tqdm
 import numpy as np
-import torch
+# import torch
 # import torch.nn as nn
 # from torch import multiprocessing as mp
 
@@ -32,7 +32,7 @@ from convert import (TEST_NEG_FILENAME, TEST_RATINGS_FILENAME,
 def parse_args():
     parser = ArgumentParser(description="Train a Nerual Collaborative"
                                         " Filtering model")
-    parser.add_argument('-data', type=str,default='ml-20m',
+    parser.add_argument('data', type=str,default='ml-20m',
                         help='path to test and training data files')
     parser.add_argument('-e', '--epochs', type=int, default=20,
                         help='number of epochs for training')
@@ -56,7 +56,7 @@ def parse_args():
                         help='manually set random seed for torch')
     parser.add_argument('--threshold', '-t', type=float,
                         help='stop training early at threshold')
-    parser.add_argument('--processes', '-p', type=int, default=1,
+    parser.add_argument('--processes', '-p', type=int, default=2,
                         help='Number of processes for evaluating model')
     return parser.parse_args()
 
@@ -65,7 +65,7 @@ def predict(model, users, items, ctx, batch_size=1024, use_cuda=True):
     batches = [(users[i:i + batch_size], items[i:i + batch_size])
                for i in range(0, len(users), batch_size)]
     preds = []
-    # pdb.set_trace()
+    #
     for user, item in batches:
         def proc(x):
             # convert numpy'ndarray to mxnet.NDArray
