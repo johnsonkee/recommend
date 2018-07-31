@@ -8,6 +8,7 @@ from collections import OrderedDict
 from argparse import ArgumentParser
 import pdb
 
+
 import tqdm
 import numpy as np
 import torch
@@ -63,8 +64,7 @@ def predict(model, users, items, ctx, batch_size=1024, use_cuda=True):
     batches = [(users[i:i + batch_size], items[i:i + batch_size])
                for i in range(0, len(users), batch_size)]
     preds = []
-
-    pdb.set_trace()
+    # pdb.set_trace()
     for user, item in batches:
         def proc(x):
             # convert numpy'ndarray to mxnet.NDArray
@@ -199,7 +199,6 @@ def main():
                   ctx=ctx)
     model.initialize()
     print(model)
-    print(type(model))
     # todo 9: to change the function in utils
     # print("{} parameters".format(utils.count_parameters(model)))
 
@@ -213,14 +212,13 @@ def main():
     valid_results_file = os.path.join(run_dir, 'valid_results.csv')
 
     # Calculate initial Hit Ratio and NDCG
-    hits, ndcgs = val_epoch(model, test_ratings, test_negs, args.topk,
-                            use_cuda=use_cuda, processes=args.processes, ctx=ctx)
-    print('Initial HR@{K} = {hit_rate:.4f}, NDCG@{K} = {ndcg:.4f}'
-          .format(K=args.topk, hit_rate=np.mean(hits), ndcg=np.mean(ndcgs)))
+    # hits, ndcgs = val_epoch(model, test_ratings, test_negs, args.topk,
+    #                         use_cuda=use_cuda, processes=args.processes, ctx=ctx)
+    # print('Initial HR@{K} = {hit_rate:.4f}, NDCG@{K} = {ndcg:.4f}'
+    #       .format(K=args.topk, hit_rate=np.mean(hits), ndcg=np.mean(ndcgs)))
 
-############### hyperparameters
-
-    # Add optimizer and loss to graph
+############# hyperparameters
+# Add optimizer and loss to graph
     lr = args.learning_rate
     bs = args.batch_size
 
