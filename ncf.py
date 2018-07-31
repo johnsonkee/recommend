@@ -75,7 +75,7 @@ def predict(model, users, items, ctx, batch_size=1024, use_cuda=True):
             return x
             # TODO: data dimension is not suitable for the network
         outp = model(proc(user), proc(item), True)
-        outp = outp.data.cpu().numpy()
+        outp = outp.cpu().numpy()
         preds += list(outp.flatten())
     return preds
 
@@ -215,10 +215,10 @@ def main():
     valid_results_file = os.path.join(run_dir, 'valid_results.csv')
 
     # Calculate initial Hit Ratio and NDCG
-    # hits, ndcgs = val_epoch(model, test_ratings, test_negs, args.topk,
-    #                         use_cuda=use_cuda, processes=args.processes, ctx=ctx)
-    # print('Initial HR@{K} = {hit_rate:.4f}, NDCG@{K} = {ndcg:.4f}'
-    #       .format(K=args.topk, hit_rate=np.mean(hits), ndcg=np.mean(ndcgs)))
+    hits, ndcgs = val_epoch(model, test_ratings, test_negs, args.topk,
+                             use_cuda=use_cuda, processes=args.processes, ctx=ctx)
+    print('Initial HR@{K} = {hit_rate:.4f}, NDCG@{K} = {ndcg:.4f}'
+           .format(K=args.topk, hit_rate=np.mean(hits), ndcg=np.mean(ndcgs)))
 
 ############# hyperparameters
 # Add optimizer and loss to graph
@@ -252,7 +252,9 @@ def main():
             # TEMP:
             a = nd.ones([1,671])
             a1 = nd.ones([1,9066])
-            model(a,a1)
+            print(model(a,a1))
+            # TEMP:
+
             pdb.set_trace()
             # compute the gradient automatically
             with autograd.record():

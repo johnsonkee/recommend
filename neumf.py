@@ -2,6 +2,7 @@ import numpy as np
 from mxnet.gluon import nn
 from mxnet import nd
 import mxnet as mx
+import pdb
 
 # in mxnet ,using mxnet.gluon.nn.Block to initiate the the deep neural network
 class NeuMF(nn.Block): #if using nn.Hybridblock, it will generate static graph
@@ -24,15 +25,16 @@ class NeuMF(nn.Block): #if using nn.Hybridblock, it will generate static graph
             # the usage of nn.Dense: nn.Dense(num of output neuron, activation = 'relu'),
             # while the num of input neurons
             # can be ignored.
-            self.mf_user_embed = nn.Dense(units=mf_dim, in_units=nb_users,
+            nn.Embedding
+            self.mf_user_embed = nn.Embedding(nb_users, mf_dim,
                                           weight_initializer=mx.init.Normal())
-            self.mf_item_embed = nn.Dense(units=mf_dim, in_units=nb_items,
+            self.mf_item_embed = nn.Embedding(nb_items, mf_dim,
                                           weight_initializer=mx.init.Normal())
                                         # mf_dim means the number of predictive factors,
-            self.mlp_user_embed = nn.Dense(units=mlp_layer_sizes[0] // 2, in_units=nb_users,
+            self.mlp_user_embed = nn.Embedding(nb_users, mlp_layer_sizes[0] // 2,
                                            weight_initializer=mx.init.Normal())
             # put user and item into the mlp together
-            self.mlp_item_embed = nn.Dense(in_units=nb_items, units=mlp_layer_sizes[0] // 2,
+            self.mlp_item_embed = nn.Embedding(nb_items, mlp_layer_sizes[0] // 2,
                                            weight_initializer=mx.init.Normal())
 
             self.mlp = nn.Sequential()
@@ -77,11 +79,11 @@ def main():
                   ctx=mx.cpu(0))
     print(model)
     model.initialize()
-    a = nd.ones([10,1000])
-    b = nd.ones([10,1000])
+    a = nd.ones([10])
+    b = nd.ones([10])
     model(a,b,True)  # 在调用model时，参数里不要带着参数名，直接写变量就好
     c = model(a,b,True)
-    print(c)
+
 
 
 
