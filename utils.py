@@ -22,7 +22,8 @@ class AverageMeter(object):
 
 
 def count_parameters(model):
-    c = map(lambda p: reduce(lambda x, y: x * y, p.size()), model.parameters())
+    c = map(lambda p: reduce(lambda x, y: x * y, p.size()), model.collect_params()) # model.parameters is the function of
+                                                                         # pytorch, we should change it into mxnet
     return sum(c)
 
 

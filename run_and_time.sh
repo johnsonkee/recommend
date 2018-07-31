@@ -48,8 +48,3 @@ else
 	echo "Problem unzipping ml-20.zip"
 	echo "Please run 'download_data.sh && verify_datset.sh' first"
 fi
-
-
-
-
-
