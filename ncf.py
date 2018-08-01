@@ -240,6 +240,7 @@ def main():
             user = nd.array(user,ctx=ctx)
             item = nd.array(item,ctx=ctx)
             label = nd.array(label,ctx=ctx)
+            pdb.set_trace()
 
             # compute the gradient automatically
             with autograd.record():
