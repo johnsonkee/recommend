@@ -179,7 +179,7 @@ def main():
     # shuffle means random the samples
     train_dataloader = mx.gluon.data.DataLoader(
             dataset=train_dataset, batch_size=args.batch_size, shuffle=True,
-            num_workers=args.num_workers)
+            num_workers=args.processes)
 
     test_ratings = load_test_ratings(os.path.join(args.data, TEST_RATINGS_FILENAME))  # noqa: E501
     test_negs = load_test_negs(os.path.join(args.data, TEST_NEG_FILENAME))
