@@ -190,7 +190,7 @@ def main():
              len(test_ratings)))
 
     if(use_cuda):
-        ctx = [mx.gpu(i) for i in mx.test_utils.list_gpus()] # default to use NO.3 gpu
+        ctx = mx.gpu(0) # default to use NO.1 gpu can use docker to select a nvidia
     else:
         ctx = mx.cpu(0)
 
