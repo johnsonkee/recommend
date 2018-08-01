@@ -237,13 +237,10 @@ def main():
         for batch_index, (user, item, label) in enumerate(loader):
             # TODO 7: search the autograd in mxnet
             # todo : let user act in gpu
-            user = nd.array(user)
-            item = nd.array(item)
-            label = nd.array(label)
+            user = nd.array(user,ctx=ctx)
+            item = nd.array(item,ctx=ctx)
+            label = nd.array(label,ctx=ctx)
 
-            user = user.as_in_context(ctx)
-            item = item.as_in_context(ctx)
-            label = label.as_in_context(ctx)
 
 
             # compute the gradient automatically
