@@ -234,6 +234,7 @@ def main():
         begin = time.time()
         # tqdm shows the percentage of the process
         loader = tqdm.tqdm(train_dataloader)
+        pdb.set_trace()
         for batch_index, (user, item, label) in enumerate(loader):
             # TODO 7: search the autograd in mxnet
             # todo : let user act in gpu
