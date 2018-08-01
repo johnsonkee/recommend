@@ -52,6 +52,13 @@ def load_ml_20m(filename, sort=True):
     ratings.rename(columns=names, inplace=True)
     return process_movielens(ratings, sort=sort)
 
+def load_ml_latest_small(filename, sort=True):
+    ratings = pd.read_csv(filename)
+    ratings['timestamp'] = pd.to_datetime(ratings['timestamp'], unit='s')
+    names = {'userId': 'user_id', 'movieId': 'item_id'}
+    ratings.rename(columns=names, inplace=True)
+    return process_movielens(ratings, sort=sort)
+
 
 DATASETS = [k.replace('load_', '') for k in locals().keys() if "load_" in k]
 
