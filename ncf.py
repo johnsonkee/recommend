@@ -234,14 +234,12 @@ def main():
         begin = time.time()
         # tqdm shows the percentage of the process
         loader = tqdm.tqdm(train_dataloader)
-        pdb.set_trace()
         for batch_index, (user, item, label) in enumerate(loader):
             # TODO 7: search the autograd in mxnet
             # todo : let user act in gpu
             user = nd.array(user,ctx=ctx)
             item = nd.array(item,ctx=ctx)
             label = nd.array(label,ctx=ctx)
-            pdb.set_trace()
 
             # compute the gradient automatically
             with autograd.record():
