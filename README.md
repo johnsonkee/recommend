@@ -22,7 +22,7 @@ screen
 
 ```bash
 cd reference/recommendation/pytorch
-pip install -r requirements.txt
+pip install -r requirements.txtMmm
 ```
 
 #### From Docker
