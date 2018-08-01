@@ -200,7 +200,7 @@ def main():
                   mlp_layer_sizes=args.layers,
                   mlp_layer_regs=[0. for i in args.layers],
                   ctx=ctx)
-    model.initialize()
+    model.initialize(ctx=ctx)
     print(model)
     # todo 9: to change the function in utils
     # print("{} parameters".format(utils.count_parameters(model)))
