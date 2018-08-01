@@ -32,7 +32,7 @@ from convert import (TEST_NEG_FILENAME, TEST_RATINGS_FILENAME,
 def parse_args():
     parser = ArgumentParser(description="Train a Nerual Collaborative"
                                         " Filtering model")
-    parser.add_argument('-data', type=str,default='ml-20m',
+    parser.add_argument('data', type=str,default='ml-20m',
                         help='path to test and training data files')
     parser.add_argument('-e', '--epochs', type=int, default=20,
                         help='number of epochs for training')
