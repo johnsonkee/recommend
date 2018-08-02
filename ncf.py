@@ -32,7 +32,7 @@ from convert import (TEST_NEG_FILENAME, TEST_RATINGS_FILENAME,
 def parse_args():
     parser = ArgumentParser(description="Train a Nerual Collaborative"
                                         " Filtering model")
-    parser.add_argument('data', type=str,default='ml-20m',
+    parser.add_argument('-data', type=str,default='ml-20m',
                         help='path to test and training data files')
     parser.add_argument('-e', '--epochs', type=int, default=20,
                         help='number of epochs for training')
@@ -201,6 +201,7 @@ def main():
                   mlp_layer_regs=[0. for i in args.layers],
                   ctx=ctx)
     model.initialize()
+    model.hybridize()
     print(model)
     # todo 9: to change the function in utils
     # print("{} parameters".format(utils.count_parameters(model)))
