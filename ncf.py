@@ -117,9 +117,9 @@ def val_epoch(model, ratings, negs, K, ctx, use_cuda=True, output=None, epoch=No
     # model.eval()
 
     if processes > 1:
-
+        # pdb.set_trace()
         context = mp.get_context('spawn')
-
+ #
         _eval_one = partial(eval_one, model=model, K=K, use_cuda=use_cuda, ctx=ctx)
         with context.Pool(processes=processes) as workers:
             hits_and_ndcg = workers.starmap(_eval_one, zip(ratings, negs))
