@@ -13,17 +13,5 @@
 [Gluon进阶资料](http://zh.gluon.ai/)  
 [Gluon中文论坛](https://discuss.gluon.ai/)
 
-## 搭建网络
-下面使用`gluon`模块来搭建一个简单的网络
-- 导入mxnet函数包
-```
-# import dependencies
-from __future__ import print_function
-import numpy as np
-import mxnet as mx
-import mxnet.ndarray as F
-import mxnet.gluon as gluon
-from mxnet.gluon import nn
-from mxnet import autograd    # 自动求导模块
-```
+
 # 3. mxnet和pytorch在创建网络时的不同点
