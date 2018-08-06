@@ -249,6 +249,7 @@ def main():
             loss.backward()
             trainer.step(bs)
 
+
             # Save stats to file
             # description = ('Epoch {} Average Loss {loss:.4f}'
             #                .format(epoch, loss=loss.mean()))

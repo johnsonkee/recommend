@@ -84,6 +84,7 @@ def main():
     model(a,b,True)  # 在调用model时，参数里不要带着参数名，直接写变量就好
     c = model(a,b,True)
     c.as_in_context(mx.cpu(0)).asnumpy()
+    
 
 
 
