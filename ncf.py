@@ -255,10 +255,11 @@ def main():
             trainer.step(bs)
 
 
-            # Save stats to file
-            # description = ('Epoch {} Average Loss {loss:.4f}'
-            #                .format(epoch, loss=loss.mean()))
-            # loader.set_description(description)
+            for x in loss.mean().asnumpy().tolist():
+                loss_number = x
+            description = ('Epoch {}  Loss {:.4f}'
+                            .format(epoch, loss_number))
+            loader.set_description(description)
 
         train_time = time.time() - begin
         begin = time.time()
