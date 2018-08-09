@@ -32,7 +32,7 @@ from convert import (TEST_NEG_FILENAME, TEST_RATINGS_FILENAME,
 def parse_args():
     parser = ArgumentParser(description="Train a Nerual Collaborative"
                                         " Filtering model")
-    parser.add_argument('data', type=str,default='ml-20m',
+    parser.add_argument('-data', type=str,default='ml-20m',
                         help='path to test and training data files')
     parser.add_argument('-e', '--epochs', type=int, default=20,
                         help='number of epochs for training')
@@ -58,6 +58,8 @@ def parse_args():
                         help='stop training early at threshold')
     parser.add_argument('--processes', '-p', type=int, default=2,
                         help='Number of processes for evaluating model')
+    parser.add_argument('--workers', '-w', type=int, default=8,
+                        help='Number of workers for training DataLoader')
     return parser.parse_args()
 
 
@@ -68,14 +70,13 @@ def predict(model, users, items, ctx, batch_size=1024, use_cuda=True):
     #
     for user, item in batches:
         def proc(x):
-            # convert numpy'ndarray to mxnet.NDArray
-            x = nd.array(x)
-            if use_cuda:
-                x = x.as_in_context(ctx)# todo
+            # convert numpy'ndarray to mxnet.NDArray,including the context
+            x = nd.array(x,ctx=ctx)
             return x
             # TODO: data dimension is not suitable for the network
         outp = model(proc(user), proc(item), True)
-        outp = outp.as_in_context(ctx).asnumpy()
+        pdb.set_trace()
+        outp = outp.asnumpy()
         preds += list(outp.flatten())
     return preds
 
@@ -179,7 +180,7 @@ def main():
     # shuffle means random the samples
     train_dataloader = mx.gluon.data.DataLoader(
             dataset=train_dataset, batch_size=args.batch_size, shuffle=True,
-            num_workers=args.processes)
+            num_workers=args.workers)
 
     test_ratings = load_test_ratings(os.path.join(args.data, TEST_RATINGS_FILENAME))  # noqa: E501
     test_negs = load_test_negs(os.path.join(args.data, TEST_NEG_FILENAME))
@@ -234,6 +235,7 @@ def main():
         begin = time.time()
         # tqdm shows the percentage of the process
         loader = tqdm.tqdm(train_dataloader)
+        pdb.set_trace()
         for batch_index, (user, item, label) in enumerate(loader):
             # TODO 7: search the autograd in mxnet
             # todo : let user act in gpu

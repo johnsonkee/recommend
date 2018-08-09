@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from mxnet import autograd,nd
+import mxnet as mx
+
 
 num_inputs = 2
 num_examples = 1000
