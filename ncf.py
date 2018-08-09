@@ -109,6 +109,7 @@ def eval_one(rating, items, model, K, ctx):
 # K meand topk
 def val_epoch(model, ratings, negs, K, ctx, output=None, epoch=None,
               processes=1):
+    thistime = time.time()
     if epoch is None:
         print("Initial evaluation")
     else:
@@ -144,6 +145,8 @@ def val_epoch(model, ratings, negs, K, ctx, output=None, epoch=None,
         result['hit_rate'] = np.mean(hits)
         result['NDCG'] = np.mean(ndcgs)
         utils.save_result(result, output)
+    print("epoch time:")
+    print(time.time()-thistime)
 
     return hits, ndcgs
 
@@ -202,6 +205,7 @@ def main():
                   mlp_layer_regs=[0. for i in args.layers],
                   ctx=ctx)
     model.initialize(ctx=ctx)
+    model.hybridize()
     print(model)
     # todo 9: to change the function in utils
     # print("{} parameters".format(utils.count_parameters(model)))
