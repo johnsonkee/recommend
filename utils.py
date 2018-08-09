@@ -22,13 +22,14 @@ class AverageMeter(object):
 
 
 def count_parameters(model):
-    c = map(lambda p: reduce(lambda x, y: x * y, p.size()), model.collect_params()) # model.parameters is the function of
-                                                                         # pytorch, we should change it into mxnet
+    c = map(lambda p: reduce(lambda x, y: x * y, p.size()), model.collect_params())
+    # model.parameters is the function of
+    # pytorch, we should change it into mxnet
     return sum(c)
 
 
 def save_config(config, run_dir):
-    path = os.path.join(run_dir, "config_{}.json".format(config['timestamp'])) 
+    path = os.path.join(run_dir, "config_{}.json".format(config['timestamp']))
     with open(path, 'w') as config_file:
         json.dump(config, config_file)
         config_file.write('\n')

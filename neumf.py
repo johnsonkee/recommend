@@ -85,9 +85,5 @@ def main():
     c = model(a,b,True)
     c.as_in_context(mx.cpu(0)).asnumpy()
 
-
-
-
-
 if __name__ == '__main__':
     main()

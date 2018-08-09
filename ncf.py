@@ -83,7 +83,6 @@ def predict(model, users, items, ctx, batch_size=1024):
 def _calculate_hit(ranked, test_item):
     return int(test_item in ranked)
 
-
 def _calculate_ndcg(ranked, test_item):
     for i, item in enumerate(ranked):
         if item == test_item:
@@ -118,9 +117,7 @@ def val_epoch(model, ratings, negs, K, ctx, output=None, epoch=None,
     # model.eval()
 
     if processes > 1:
-
         context = mp.get_context('spawn')
-
         _eval_one = partial(eval_one, model=model, K=K, ctx=ctx)
         with context.Pool(processes=processes) as workers:
             hits_and_ndcg = workers.starmap(_eval_one, zip(ratings, negs))
