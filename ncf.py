@@ -160,7 +160,7 @@ def main():
     config = {k: v for k, v in args.__dict__.items()}
     config['timestamp'] = "{:.0f}".format(datetime.utcnow().timestamp())
     config['local_timestamp'] = str(datetime.now())
-    run_dir = "./run/neumf/{}".format(config['timestamp'])
+    run_dir = "./run/neumf_" + args.data + "/{}".format(config['timestamp'])
     print("Saving config and results to {}".format(run_dir))
     if not os.path.exists(run_dir) and run_dir != '':
         os.makedirs(run_dir)
@@ -270,7 +270,6 @@ def main():
             if np.mean(hits) >= args.threshold:
                 print("Hit threshold of {}".format(args.threshold))
                 # Save model text description after modelling
-                run_dir = "./run/neumf/{}".format(config['timestamp'])
                 with open(os.path.join(run_dir, 'model.txt'), 'w') as file:
                     file.write(str(model))
                 # model.save_parameters(os.path.join("/home/net.params",'net.params'))

@@ -17,12 +17,12 @@ seed=${1:-1}
 echo "unzip ml-20m.zip"
 if unzip ml-20m.zip
 then
-#    echo "Start processing ml-20m/ratings.csv"
-#    t0=$(date +%s)
-#	python3 $BASEDIR/convert.py ml-20m/ratings.csv ml-20m --negatives 999
-#   t1=$(date +%s)
-#	delta=$(( $t1 - $t0 ))
- #   echo "Finish processing ml-20m/ratings.csv in $delta seconds"
+    echo "Start processing ml-20m/ratings.csv"
+    t0=$(date +%s)
+	python3 $BASEDIR/convert.py ml-20m/ratings.csv ml-20m --negatives 999
+    t1=$(date +%s)
+	delta=$(( $t1 - $t0 ))
+    echo "Finish processing ml-20m/ratings.csv in $delta seconds"
 
     echo "Start training"
     t0=$(date +%s)
