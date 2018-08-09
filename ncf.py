@@ -32,7 +32,7 @@ from convert import (TEST_NEG_FILENAME, TEST_RATINGS_FILENAME,
 def parse_args():
     parser = ArgumentParser(description="Train a Nerual Collaborative"
                                         " Filtering model")
-    parser.add_argument('-data', type=str,default='ml-20m',
+    parser.add_argument('data', type=str,default='ml-20m',
                         help='path to test and training data files')
     parser.add_argument('-e', '--epochs', type=int, default=20,
                         help='number of epochs for training')
@@ -63,7 +63,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def predict(model, users, items, ctx, batch_size=1024, use_cuda=True):
+def predict(model, users, items, ctx, batch_size=1024):
     batches = [(users[i:i + batch_size], items[i:i + batch_size])
                for i in range(0, len(users), batch_size)]
     preds = []
@@ -75,7 +75,6 @@ def predict(model, users, items, ctx, batch_size=1024, use_cuda=True):
             return x
             # TODO: data dimension is not suitable for the network
         outp = model(proc(user), proc(item), True)
-        pdb.set_trace()
         outp = outp.asnumpy()
         preds += list(outp.flatten())
     return preds
@@ -92,12 +91,12 @@ def _calculate_ndcg(ranked, test_item):
     return 0.
 
 
-def eval_one(rating, items, model, K, ctx,use_cuda=True):
+def eval_one(rating, items, model, K, ctx):
     user = rating[0]
     test_item = rating[1]
     items.append(test_item)
     users = [user] * len(items)
-    predictions = predict(model, users, items, use_cuda=use_cuda, ctx=ctx)
+    predictions = predict(model, users, items, ctx=ctx)
 
     map_item_score = {item: pred for item, pred in zip(items, predictions)}
     ranked = heapq.nlargest(K, map_item_score, key=map_item_score.get)
@@ -108,7 +107,7 @@ def eval_one(rating, items, model, K, ctx,use_cuda=True):
 
 
 # K meand topk
-def val_epoch(model, ratings, negs, K, ctx, use_cuda=True, output=None, epoch=None,
+def val_epoch(model, ratings, negs, K, ctx, output=None, epoch=None,
               processes=1):
     if epoch is None:
         print("Initial evaluation")
@@ -121,14 +120,14 @@ def val_epoch(model, ratings, negs, K, ctx, use_cuda=True, output=None, epoch=No
 
         context = mp.get_context('spawn')
 
-        _eval_one = partial(eval_one, model=model, K=K, use_cuda=use_cuda, ctx=ctx)
+        _eval_one = partial(eval_one, model=model, K=K, ctx=ctx)
         with context.Pool(processes=processes) as workers:
             hits_and_ndcg = workers.starmap(_eval_one, zip(ratings, negs))
         hits, ndcgs = zip(*hits_and_ndcg)
     else:
         hits, ndcgs = [], []
         for rating, items in zip(ratings, negs):
-            hit, ndcg = eval_one(rating, items, model, K, use_cuda=use_cuda, ctx=ctx)
+            hit, ndcg = eval_one(rating, items, model, K, ctx=ctx)
             hits.append(hit)
             ndcgs.append(ndcg)
 
@@ -191,7 +190,8 @@ def main():
              len(test_ratings)))
 
     if(use_cuda):
-        ctx = mx.gpu(0) # default to use NO.1 gpu can use docker to select a nvidia
+        ctx = mx.gpu(0)
+        # default to use NO.1 gpu can use docker to select a nvidia
     else:
         ctx = mx.cpu(0)
 
@@ -217,7 +217,7 @@ def main():
 
     # Calculate initial Hit Ratio and NDCG
     hits, ndcgs = val_epoch(model, test_ratings, test_negs, args.topk,
-                             use_cuda=use_cuda, processes=args.processes, ctx=ctx)
+                              processes=args.processes, ctx=ctx)
     print('Initial HR@{K} = {hit_rate:.4f}, NDCG@{K} = {ndcg:.4f}'
            .format(K=args.topk, hit_rate=np.mean(hits), ndcg=np.mean(ndcgs)))
 
@@ -235,7 +235,6 @@ def main():
         begin = time.time()
         # tqdm shows the percentage of the process
         loader = tqdm.tqdm(train_dataloader)
-        pdb.set_trace()
         for batch_index, (user, item, label) in enumerate(loader):
             # TODO 7: search the autograd in mxnet
             # todo : let user act in gpu
@@ -260,7 +259,7 @@ def main():
         train_time = time.time() - begin
         begin = time.time()
         hits, ndcgs = val_epoch(model, test_ratings, test_negs, args.topk,
-                                use_cuda=use_cuda, output=valid_results_file,
+                                 output=valid_results_file,
                                 epoch=epoch, processes=args.processes, ctx=ctx)
         val_time = time.time() - begin
         print('Epoch {epoch}: HR@{K} = {hit_rate:.4f}, NDCG@{K} = {ndcg:.4f},'
