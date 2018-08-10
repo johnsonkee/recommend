@@ -1,3 +1,22 @@
+#!/bin/bash
+"""
+Description:
+	Download Movielens dataset.
+
+Usage:
+
+	./download_dataset [option_name]
+
+		option_name: download_1m,
+								 download_20m,
+								 download_latest,
+								 download_latest_small
+		default: download_20m
+
+Author:
+
+	johsonkee[876688461@qq.com]
+"""
 function download_20m {
 	echo "Download ml-20m"
 	curl -O http://files.grouplens.org/datasets/movielens/ml-20m.zip
