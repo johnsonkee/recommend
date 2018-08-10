@@ -7,30 +7,31 @@ The model trains on binary information about whether or not a user interacted wi
 
 #### From Source
 
-1. Install [PyTorch v0.4.0](https://github.com/pytorch/pytorch/tree/v0.4.0)
+1. Install [MXNet(CPU or GPU)](http://mxnet.incubator.apache.org/install/index.html?platform=Linux&language=Python&processor=CPU)  
+
 2. Install `unzip` and `curl`
 
 ```bash
 sudo apt-get install unzip curl
 ```
-3. Checkout the MLPerf repo
+3. Checkout the johnsonkee repo
 ```bash
-git clone https://github.com/mlperf/reference.git
+git clone http://github.com/johnsonkee/recommend.git
 ```
-screen
+
 4. Install other python packages
 
 ```bash
-cd reference/recommendation/pytorch
+cd recommendation
 pip install -r requirements.txt
 ```
 
 #### From Docker
 
-1. Checkout the MLPerf repo
+1. Checkout the johnsonkee repo
 
 ```bash
-git clone https://github.com/mlperf/reference.git
+git clone http://github.com/johnsonkee/recommend.git
 ```
 2. Install CUDA and Docker
 
@@ -42,26 +43,51 @@ source reference/install_cuda_docker.sh
 
 ```bash
 # Pull from Docker Hub
-docker pull mlperf/recommendation:v0.5
-```
-
-or
-
-```bash
-# Build from Dockerfile
-cd reference/recommendation/pytorch
-sudo docker build -t mlperf/recommendation:v0.5 .
+docker pull mxnet/python:1.2.0_gpu_cuda9
 ```
 
 ### Steps to download and verify data
 
-You can download and verify the dataset by running the `download_dataset.sh` and `verify_dataset.sh` scripts in the parent directory:
+#### From Source
+
+You can download and verify the dataset by running the `download_dataset.sh` and `verify_dataset.sh` scripts in the parent directory. Before running the following codes, make sure you are in *`recommend`* directory:
 
 ```bash
 # Creates ml-20.zip
-source ../download_dataset.sh
+./download_dataset.sh
 # Confirms the MD5 checksum of ml-20.zip
-source ../verify_dataset.sh
+./verify_dataset.sh
+```
+
+#### From Docker
+
+After pulling the image `mxnet/python:1.2.0_gpu_cuda9`, you can continue the following codes.
+1. Build a container through the image
+
+```bash
+nvidia-docker run --name johnsonkee_mxnet -ti \
+mxnet/python:1.2.0_gpu_cuda9 /bin/bash
+```
+
+2. Build a directory to start your workers
+
+```bash
+cd /home
+```
+
+3. Checkout the johnsonkee repo
+
+```bash
+git clone http://github.com/johnsonkee/recommend.git
+```
+4. Download and verify dateset
+
+```bash
+# Creates ml-20.zip
+cd recommend
+./download_dataset.sh
+# Confirms the MD5 checksum of ml-20.zip
+./verify_dataset.sh
 ```
 
 ### Steps to run and time
@@ -71,15 +97,15 @@ source ../verify_dataset.sh
 Run the `run_and_time.sh` script with an integer seed value between 1 and 5
 
 ```bash
-source run_and_time.sh SEED
+./run_and_time.sh SEED
 ```
 
-#### Docker Image
+#### From Docker
 
+Run the `run_and_time.sh` script with an integer seed value between 1 and 5
 ```bash
-sudo nvidia-docker run -i -t --rm --ipc=host \
-    --mount "type=bind,source=$(pwd),destination=/mlperf/experiment" \
-    mlperf/recommendation:v0.5 SEED
+# make sure you are in the `recommend` directory
+./run_and_time.sh SEED
 ```
 
 # 3. Dataset/Environment
@@ -122,3 +148,13 @@ After every epoch through the training data.
 ### Evaluation thoroughness
 
 Every users last item rated, i.e. all held out positive examples.
+
+# 6. About
+This project was rewritten from [mlperf'recommendation](https://github.com/mlperf/reference/tree/master/recommendation) by Xianzhuo Wang when he was an intern a Cambricon.   
+
+The major difference between the two is that the original one uses `PyTorch` as framework while the new one uses `MXNet` as framework. In addition, the new one can support for two new datasets:  
+[ml-latest-small](https://grouplens.org/datasets/movielens/latest/)  
+[ml-latest](https://grouplens.org/datasets/movielens/latest/)
+
+# 7. Issues & Suggestions
+If you have any questiones, contact me 876688461@qq.com or creat an [issue](http://github.com/johnsonkee/recommend/issues)
