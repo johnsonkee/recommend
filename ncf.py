@@ -7,6 +7,7 @@ from datetime import datetime
 from collections import OrderedDict
 from argparse import ArgumentParser
 import pdb
+from pathos import multiprocessing as mp
 
 
 import tqdm
@@ -19,7 +20,7 @@ import mxnet as mx
 from mxnet import nd
 from mxnet import autograd
 from mxnet.gluon import nn
-import multiprocessing as mp
+# import multiprocessing as mp
 
 
 import utils
@@ -120,7 +121,7 @@ def val_epoch(model, ratings, negs, K, ctx, output=None, epoch=None,
         context = mp.get_context('spawn')
         _eval_one = partial(eval_one, model=model, K=K, ctx=ctx)
         with context.Pool(processes=processes) as workers:
-            hits_and_ndcg = workers.starmap(_eval_one, zip(ratings, negs))
+            hits_and_ndcg = workers.map(_eval_one, zip(ratings, negs))
         hits, ndcgs = zip(*hits_and_ndcg)
     else:
         hits, ndcgs = [], []
@@ -176,7 +177,7 @@ def main():
         os.path.join(args.data, TRAIN_RATINGS_FILENAME), args.negative_samples)
     #in original file, use 8 core as defaul
 
-    # shuffle means random the samples
+    # the parameter：shuffle means random the samples
     train_dataloader = mx.gluon.data.DataLoader(
             dataset=train_dataset, batch_size=args.batch_size, shuffle=True,
             num_workers=args.workers)
