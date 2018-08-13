@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import os
 import heapq
 import math
@@ -7,7 +8,6 @@ from datetime import datetime
 from collections import OrderedDict
 from argparse import ArgumentParser
 import pdb
-from pathos import multiprocessing as mp
 
 
 import tqdm
@@ -20,7 +20,7 @@ import mxnet as mx
 from mxnet import nd
 from mxnet import autograd
 from mxnet.gluon import nn
-# import multiprocessing as mp
+import multiprocessing as mp
 
 
 import utils
@@ -121,7 +121,6 @@ def val_epoch(model, ratings, negs, K, ctx, output=None, epoch=None,
     if processes > 1:
         context = mp.get_context('spawn')
         _eval_one = partial(eval_one, model=model, K=K, ctx=ctx)
-        pdb.set_trace()
         with context.Pool(processes=processes) as workers:
             hits_and_ndcg = workers.map(_eval_one, zip(ratings, negs))
         hits, ndcgs = zip(*hits_and_ndcg)
@@ -131,7 +130,7 @@ def val_epoch(model, ratings, negs, K, ctx, output=None, epoch=None,
             hit, ndcg = eval_one(rating, items, model, K, ctx=ctx)
             hits.append(hit)
             ndcgs.append(ndcg)
-
+s
     hits = np.array(hits, dtype=np.float32)
     ndcgs = np.array(ndcgs, dtype=np.float32)
 

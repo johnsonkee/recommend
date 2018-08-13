@@ -3,6 +3,10 @@ This task benchmarks recommendation with implicit feedback on the [MovieLens 20 
 The model trains on binary information about whether or not a user interacted with a specific item.
 
 # 2. Directions
+
+### Environment
+Ubuntu 18.04, python 3.5, MXNet 1.2.0, Cuda v9.0.176
+
 ### Steps to configure machine
 
 #### From Source
@@ -54,9 +58,9 @@ You can download and verify the dataset by running the `download_dataset.sh` and
 
 ```bash
 # Creates ml-20.zip
-./download_dataset.sh
+bash download_dataset.sh
 # Confirms the MD5 checksum of ml-20.zip
-./verify_dataset.sh
+bash verify_dataset.sh
 ```
 
 #### From Docker
@@ -69,25 +73,36 @@ nvidia-docker run --name johnsonkee_mxnet -ti \
 mxnet/python:1.2.0_gpu_cuda9 /bin/bash
 ```
 
-2. Build a directory to start your workers
+2. Install `unzip` and `curl`
+
+```bash
+apt install unzip curl
+```
+3. Build a directory to start your workers
 
 ```bash
 cd /home
 ```
 
-3. Checkout the johnsonkee repo
+4. Checkout the johnsonkee repo
 
 ```bash
 git clone http://github.com/johnsonkee/recommend.git
 ```
-4. Download and verify dateset
+
+5. Install other python packages
+
+```bash
+pip install -r recommend/requirements.txt
+```
+6. Download and verify dateset
 
 ```bash
 # Creates ml-20.zip
 cd recommend
-./download_dataset.sh
+bash download_dataset.sh
 # Confirms the MD5 checksum of ml-20.zip
-./verify_dataset.sh
+bash verify_dataset.sh
 ```
 
 ### Steps to run and time
@@ -97,7 +112,7 @@ cd recommend
 Run the `run_and_time.sh` script with an integer seed value between 1 and 5
 
 ```bash
-./run_and_time.sh SEED
+bash run_and_time.sh SEED
 ```
 
 #### From Docker
@@ -105,7 +120,7 @@ Run the `run_and_time.sh` script with an integer seed value between 1 and 5
 Run the `run_and_time.sh` script with an integer seed value between 1 and 5
 ```bash
 # make sure you are in the `recommend` directory
-./run_and_time.sh SEED
+bash run_and_time.sh SEED
 ```
 
 # 3. Dataset/Environment
@@ -157,4 +172,4 @@ The major difference between the two is that the original one uses `PyTorch` as 
 [ml-latest](https://grouplens.org/datasets/movielens/latest/)
 
 # 7. Issues & Suggestions
-If you have any questiones, contact me 876688461@qq.com or creat an [issue](http://github.com/johnsonkee/recommend/issues)
+If you have any questiones, contact me 876688461@qq.com or creat an [issue](http://github.com/johnsonkee/recommend/issues).
