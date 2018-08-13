@@ -5,7 +5,7 @@ from mxnet import nd
 import mxnet as mx
 
 # in mxnet ,using mxnet.gluon.nn.Block to initiate the the deep neural network
-class NeuMF(nn.HybridBlock): #if using nn.Hybridblock, it will generate static graph
+class NeuMF(nn.Block): #if using nn.Hybridblock, it will generate static graph
     def __init__(self, nb_users, nb_items,
                  mf_dim, mf_reg,
                  mlp_layer_sizes,
@@ -37,7 +37,7 @@ class NeuMF(nn.HybridBlock): #if using nn.Hybridblock, it will generate static g
             self.mlp_item_embed = nn.Embedding(nb_items, mlp_layer_sizes[0] // 2,
                                            weight_initializer=mx.init.Normal())
 
-            self.mlp = nn.HybridSequential()
+            self.mlp = nn.Sequential()
             for i in range(1, nb_mlp_layers):
                 self.mlp.add(nn.Dense(units=mlp_layer_sizes[i],
                                       in_units=mlp_layer_sizes[i-1],
