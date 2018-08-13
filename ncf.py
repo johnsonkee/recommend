@@ -91,6 +91,7 @@ def _calculate_ndcg(ranked, test_item):
 
 
 def eval_one(rating, items, model, K, ctx):
+    # pdb.set_trace()
     user = rating[0]
     test_item = rating[1]
     items.append(test_item)
@@ -119,6 +120,7 @@ def val_epoch(model, ratings, negs, K, ctx, output=None, epoch=None,
     if processes > 1:
         context = mp.get_context('spawn')
         _eval_one = partial(eval_one, model=model, K=K, ctx=ctx)
+        pdb.set_trace()
         with context.Pool(processes=processes) as workers:
             hits_and_ndcg = workers.starmap(_eval_one, zip(ratings, negs))
         hits, ndcgs = zip(*hits_and_ndcg)

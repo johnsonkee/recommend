@@ -22,7 +22,7 @@ git clone http://github.com/johnsonkee/recommend.git
 4. Install other python packages
 
 ```bash
-cd recommendation
+cd recommend
 pip install -r requirements.txt
 ```
 
