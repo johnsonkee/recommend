@@ -53,23 +53,13 @@ def load_test_ratings(fname):
     def process_line(line):
         tmp = map(int, line.split('\t')[0:2])
         return list(tmp)
-    lines = open(fname, 'r').readlines()
-    ratings = map(process_line, lines)
+    ratings = map(process_line, open(fname,'r'))
     return list(ratings)
 
 
 def load_test_negs(fname):
     def process_line(line):
-        tmp = map(int, line.split('\t')[1:])  # it means changing string to int
+        tmp = map(int, line.split('\t'))  # it means changing string to int
         return list(tmp)
-    lines = open(fname, 'r').readlines()
-    negs = map(process_line, lines)
+    negs = map(process_line, open(fname,'r'))
     return list(negs)
-
-
-def main():
-    train_dataset = CFTrainDataset("ml-20m/train-ratings.csv", 10)
-    print("finished")
-
-if __name__ == '__main__':
-    main()

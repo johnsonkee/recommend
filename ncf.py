@@ -33,7 +33,7 @@ from convert import (TEST_NEG_FILENAME, TEST_RATINGS_FILENAME,
 def parse_args():
     parser = ArgumentParser(description="Train a Nerual Collaborative"
                                         " Filtering model")
-    parser.add_argument('data', type=str,default='ml-20m',
+    parser.add_argument('data', type=str,default='ml-latest-small',
                         help='path to test and training data files')
     parser.add_argument('-e', '--epochs', type=int, default=20,
                         help='number of epochs for training')
@@ -72,6 +72,7 @@ def predict(model, users, items, ctx, batch_size=1024):
     for user, item in batches:
         def proc(x):
             # convert numpy'ndarray to mxnet.NDArray,including the context
+            x = np.array(x)
             x = nd.array(x,ctx=ctx)
             return x
             # TODO: data dimension is not suitable for the network
@@ -122,7 +123,8 @@ def val_epoch(model, ratings, negs, K, ctx, output=None, epoch=None,
         context = mp.get_context('spawn')
         _eval_one = partial(eval_one, model=model, K=K, ctx=ctx)
         with context.Pool(processes=processes) as workers:
-            hits_and_ndcg = workers.map(_eval_one, zip(ratings, negs))
+            zip(ratings,negs)
+            hits_and_ndcg = workers.starmap(_eval_one, zip(ratings, negs))
         hits, ndcgs = zip(*hits_and_ndcg)
     else:
         hits, ndcgs = [], []
@@ -130,7 +132,6 @@ def val_epoch(model, ratings, negs, K, ctx, output=None, epoch=None,
             hit, ndcg = eval_one(rating, items, model, K, ctx=ctx)
             hits.append(hit)
             ndcgs.append(ndcg)
-s
     hits = np.array(hits, dtype=np.float32)
     ndcgs = np.array(ndcgs, dtype=np.float32)
 
